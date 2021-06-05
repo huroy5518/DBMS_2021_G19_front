@@ -143,25 +143,16 @@ const SearchBar = ()=> {
             console.log(e)
         }
     }
-    const handleSearch = () => {
+    const handleSearch = async() => {
         console.log(inputFruitName)
-        let op = getSearch()
-        op.then(
-            res => {
-                if(res === 200) {
-                    setFruitData(res.data)
-                    return
-                }else {
-                    console.log(res)
-                }
-                console.log(res)
-            }
-        ).then(
+        setIsLoading(true)
+        let op = await getSearch()
+        if(op.status === 200) {
+            setFruitData(op.data)
             setIsLoading(false)
-        )
-        .catch(e => {
-            console.log(e)
-        })
+        }else {
+            setIsLoading(false)
+        }
     }
     const handleCardClick = (e) => {
 

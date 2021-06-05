@@ -1,4 +1,5 @@
 import {Container, Form, Button} from 'react-bootstrap'
+import ReactLoading from 'react-loading'
 import React, {useState} from 'react'
 import {sign} from './context/action'
 import {useHistory} from 'react-router-dom'
@@ -8,6 +9,7 @@ const SignPage = ()=> {
   const [id, setId] = useState("")
   const [password, setPassword] = useState("")
   const [exists, setExists] = useState(false)
+  const [isLoading, setLoading] = useState(false)
   const history = useHistory()
 
   const validForm = () =>{
@@ -21,13 +23,16 @@ const SignPage = ()=> {
     if(!validForm()){
       return;
     }
+    setLoading(true) 
     try{
       let res = await sign({'username':id, 'password':password, 'email':email})
       if(res.status === 201) {
+        setLoading(false)
         setExists(false)
         history.push('/login')
       }
       else{
+        setLoading(false)
         setExists(true)
       }
         
@@ -36,7 +41,13 @@ const SignPage = ()=> {
     }
   }
   return(
-      <Container className='mt-3 w-25'>
+    <>
+      {(isLoading) ?
+      <Container fluid className = 'd-flex justify-content-center'>
+          <ReactLoading type={"bars"} color={"grey"} />
+      </Container>
+        : 
+        <Container className='mt-3 w-25'>
           <Form>
             <Form.Group className="mb-3" controlId="formBasicEmail">
               <Form.Label>Email address</Form.Label>
@@ -60,6 +71,8 @@ const SignPage = ()=> {
             {(!exists)? "" : "ID or Email already exist"}
           </Form>
       </Container>
+      }
+      </>
   )
 }
 

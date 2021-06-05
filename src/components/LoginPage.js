@@ -10,7 +10,7 @@ const LoginPage = ()=> {
   const [password, setPassword] = useState("")
   const [wrong, setWrong] = useState(false);
   const history = useHistory()
-  const {loading} = useAuthState()
+  const [isLoading, setLoading] = useState(false)
 
   const dispatch = useAuthDispatch()
   const validForm = () => {
@@ -20,12 +20,15 @@ const LoginPage = ()=> {
     if(!validForm()){
       return;
     }
+    setLoading(true)
     try{
       let res = await loginUser(dispatch, username, password)
       if(res.status === 200) {
         history.push('/')
+        setLoading(false)
         setWrong(false)
       }else {
+        setLoading(false)
         setWrong(true)
       }
     }catch(e){
@@ -51,7 +54,7 @@ const LoginPage = ()=> {
 
   return(
       <Container className='mt-3 w-25'>
-          {(loading) ? 
+          {(isLoading) ? 
             <Container fluid className = 'd-flex justify-content-center'>
                 <ReactLoading type={"bars"} color={"grey"} />
             </Container>
@@ -73,7 +76,7 @@ const LoginPage = ()=> {
               </Button>
             </Form>
           }
-          {(wrong && !loading)?<h4 align='center' className = 'mt-4'>帳號或密碼錯誤</h4>:""}
+          {(wrong && !isLoading)?<h4 align='center' className = 'mt-4'>帳號或密碼錯誤</h4>:""}
       </Container>
   )
 }
