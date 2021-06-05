@@ -1,5 +1,3 @@
-import logo from './logo.svg'
-import './App.css';
 import NavbarS from './components/NavbarS'
 import BodyS from './components/BodyS'
 import LoginPage from './components/LoginPage'
