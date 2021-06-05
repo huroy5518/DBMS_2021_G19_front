@@ -1,0 +1,26 @@
+.filter {
+    background-color: blue;
+}
+
+.card-1{
+    background-color: blue;
+    border-bottom: 10px;
+    height: 5em;
+    transition: 0.3s;
+}
+
+.card-1:hover{
+    transform:scale(1.003);
+    cursor: pointer;
+    box-shadow: 0px 3px 4px 1px rgba(0, 0, 0, 0.35);
+}
+.favorite {
+    transition-duration: 0.3s;
+}
+.favorite:hover{
+    transform:scale(1.1);
+    cursor: pointer;
+}
+.add{
+    background-color: rgba(225,225,225, 1);
+}
