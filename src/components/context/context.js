@@ -1,8 +1,8 @@
-import React,{createContext, useContext, useReducer} from 'react'
+import {createContext, useContext, useReducer} from 'react'
 import {AuthReducer, initialState} from './reducer'
 
-const AuthStateContext = React.createContext()
-const AuthDispatchContext = React.createContext()
+const AuthStateContext = createContext()
+const AuthDispatchContext = createContext()
 
 export const useAuthState = () => {
     const context = useContext(AuthStateContext)

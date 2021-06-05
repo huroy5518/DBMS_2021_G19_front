@@ -1,6 +1,6 @@
-import { useLocation } from 'react-router-dom'
 import {useEffect, useState} from 'react'
-import {Container, Row, Col, Badge} from 'react-bootstrap'
+import {Container, Row, Badge} from 'react-bootstrap'
+import {useAuthState} from './context/context'
 import axios from 'axios'
 import ReactLoading from 'react-loading'
 
@@ -9,6 +9,7 @@ const FruitPage = (props) => {
     const [Loading, setLoading] = useState(true)
     const [fruitData, setFruitData] = useState({})
     const [notFound, setNotFound] = useState(false)
+    const {isLogin, favorite_id} = useAuthState()
 
     const URL = 'http://192.168.88.248:8000/fruit/' + fruitId
     async function getdata() {
@@ -54,6 +55,12 @@ const FruitPage = (props) => {
             </Container>
         )
     }
+    const handleFavoriteAdd = () => {
+        return
+    }
+    const handleFavoriteRemove = () => {
+        return
+    }
 
     return (
         <>
@@ -67,8 +74,22 @@ const FruitPage = (props) => {
                     <Row>
                         <h5>盛產季節</h5>
                         {fruitData.months.map(month=>{
-                                return (<Badge pill variant='warning' className = 'ml-2 mb-2 pt-2' key = {month}>{month}月</Badge>)
-                        })}
+                                return (
+                                <Badge pill variant='warning' className = 'ml-2 mb-2 pt-2' key = {month}>{month}月</Badge>
+                            )
+                        })
+                        }
+                        {
+                         (isLogin && favorite_id.has(fruitId))? 
+                            <Badge pill variant = 'secondary' className = 'ml-2 mb-2 pt-2 favorite' id = {'favorite'} key ={'not_favorite'}  onClick = {handleFavoriteRemove}>
+                                已收藏  
+                            </Badge>
+                            :
+                            <Badge pill className = 'ml-2 mb-2 pt-2 favorite add' id = {'favorite'} key ={'favorite'} onClick = {handleFavoriteAdd}>
+                                收藏  
+                            </Badge>
+
+                        }
 
                     </Row>
                 </Container>

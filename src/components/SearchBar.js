@@ -121,21 +121,47 @@ const SearchBar = ()=> {
     const handleFruitNameChange = (e) => {
         setInputFruitName(e.target.value)
     }
-    const handleSearch = () => {
-        setIsLoading(true)
+    const getSearch = async (e) => {
         const searchURL = 'http://192.168.88.248:8000/fruit/search'
-        axios.post(
-            searchURL,
-            {
-                id:"",
-                name: inputFruitName,
-                months: selectMonth
+        try{
+            let res = axios.post(
+                searchURL,
+                {
+                    id:"",
+                    name: inputFruitName,
+                    months: selectMonth
+                }
+            )
+            if(res.status === 200) {
+                return res
+            }else {
+                console.log(res)
+                return {status: 404}
+            }
+
+        }catch(e) {
+            console.log(e)
+        }
+    }
+    const handleSearch = () => {
+        console.log(inputFruitName)
+        let op = getSearch()
+        op.then(
+            res => {
+                if(res === 200) {
+                    setFruitData(res.data)
+                    return
+                }else {
+                    console.log(res)
+                }
+                console.log(res)
             }
         ).then(
-            res => setFruitData(res.data) 
-        ).then(
             setIsLoading(false)
-        ).catch(e => console.log(e))
+        )
+        .catch(e => {
+            console.log(e)
+        })
     }
     const handleCardClick = (e) => {
 
@@ -148,9 +174,6 @@ const SearchBar = ()=> {
 
     const handleFavoriteAdd = (e)=> {
         // TODO communicate
-        // const tmp_favorite = favorite
-        // console.log(e)
-        // tmp_favorite.push(parseInt(e.target.id.split(':')[1]))
         const tmp_favorite = favorite
         const tmp = parseInt((e.target.id.split(':')[1]))
         tmp_favorite.push(fruitData[tmp])
@@ -160,10 +183,11 @@ const SearchBar = ()=> {
     }
     const handleFavoriteRemove = (e)=> {
         // TODO communicate
-        const tmp_favorite = favorite
         const tmp = parseInt((e.target.id.split(':')[1]))
-        tmp_favorite.splice(tmp,1)
         const tmp_set = favorite_id
+        const tmp_favorite = favorite.filter((item) => {
+            return item.id !== fruitData[tmp].id
+        })
         tmp_set.delete(fruitData[tmp].id)
         dispatch({type:'SET_FAVORITE', payload: {favorite:tmp_favorite}, newSet:tmp_set})
     }
@@ -182,6 +206,7 @@ const SearchBar = ()=> {
     // ))
 
     
+    console.log(isLoading)
     let DataCard = (isLoading)? 
     <Container fluid className = 'd-flex justify-content-center'>
         <ReactLoading type={"bars"} color={"grey"} />
@@ -328,7 +353,7 @@ const SearchBar = ()=> {
                 </Row>
                 <Row>
                 <Container fuild className = 'd-flex justify-content-start mt-3' >
-                    <Button onClick = {handleSearch}>Search</Button>
+                    <Button onClick = {() => {handleSearch()}}>Search</Button>
                 </Container>
                 </Row>
             </Container>

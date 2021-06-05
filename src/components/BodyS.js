@@ -1,5 +1,4 @@
 import { Container } from 'react-bootstrap'
-import SearchMS from './SearchMS'
 import SearchBar from './SearchBar'
 import './BodyS.css'
 

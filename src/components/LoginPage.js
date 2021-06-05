@@ -1,17 +1,16 @@
-import axios from 'axios';
 import React, {useState} from 'react'
 import {Container, Form, Button} from 'react-bootstrap'
 import {loginUser} from './context/action'
-import {initialState, AuthReducer} from './context/reducer'
-import {useAuthState, useAuthDispatch} from './context/context'
+import {useAuthDispatch, useAuthState} from './context/context'
 import {useHistory} from 'react-router-dom'
 import ReactLoading from 'react-loading'
 const LoginPage = ()=> {
 
   const [username, setId] = useState("");
-  const [password, setPassword] = useState("");
+  const [password, setPassword] = useState("")
   const [wrong, setWrong] = useState(false);
   const history = useHistory()
+  const {loading} = useAuthState()
 
   const dispatch = useAuthDispatch()
   const validForm = () => {
@@ -52,7 +51,7 @@ const LoginPage = ()=> {
 
   return(
       <Container className='mt-3 w-25'>
-          {(initialState.loading) ? 
+          {(loading) ? 
             <Container fluid className = 'd-flex justify-content-center'>
                 <ReactLoading type={"bars"} color={"grey"} />
             </Container>
@@ -74,7 +73,7 @@ const LoginPage = ()=> {
               </Button>
             </Form>
           }
-          {(wrong && !initialState.loading)?<h4 align='center' className = 'mt-4'>帳號或密碼錯誤</h4>:""}
+          {(wrong && !loading)?<h4 align='center' className = 'mt-4'>帳號或密碼錯誤</h4>:""}
       </Container>
   )
 }

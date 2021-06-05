@@ -1,4 +1,4 @@
-import {useEffect, useState} from 'react'
+import {useState} from 'react'
 import {Container, Row, Col,Badge, Card} from 'react-bootstrap'
 import ReactLoading from 'react-loading'
 import { useAuthDispatch, useAuthState } from './context/context'
@@ -6,7 +6,6 @@ import {useHistory} from 'react-router-dom'
 
 const Favorite = () => {
     const {isLogin} = useAuthState()
-    const [isLoading, setLoading] = useState('')
     const {favorite, favorite_id} = useAuthState()
     
     const history = useHistory()
@@ -23,19 +22,17 @@ const Favorite = () => {
 
     const handleFavoriteRemove = (e)=> {
         // TODO communicate
-        const tmp_favorite = favorite
         const tmp = parseInt((e.target.id.split(':')[1]))
         const tmp_set = favorite_id
-        tmp_set.delete(tmp_favorite[tmp].id)
-        tmp_favorite.splice(tmp,1)
+        const tmp_favorite = favorite.filter((item) => {
+            return item.id !== favorite[tmp].id
+        })
+        tmp_set.delete(favorite[tmp].id)
         dispatch({type:'SET_FAVORITE', payload: {favorite:tmp_favorite}, newSet:tmp_set})
     }
 
-    let DataCard = (isLoading)? 
-    <Container fluid className = 'd-flex justify-content-center'>
-        <ReactLoading type={"bars"} color={"grey"} />
-    </Container>
-    : favorite.map((item,idx) => {
+    let DataCard = 
+     favorite.map((item,idx) => {
                         const h = item.months.map(month =>
                             <Badge pill variant='warning' className = 'ml-2 mb-2' key = {month}>{month}月</Badge> )
                             h.push(
