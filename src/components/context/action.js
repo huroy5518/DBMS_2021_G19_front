@@ -1,9 +1,52 @@
 import axios from "axios"
 
-const loginURL = 'http://192.168.88.248:8000/auth/login'
+export const getSearch = async (inputFruitName, selectMonth) => {
+    const searchURL = 'http://192.168.88.248:8000/fruit/search'
+    try{
+        let res = await axios.post(
+            searchURL,
+            {
+                id:"",
+                name: inputFruitName,
+                months: selectMonth
+            }
+        )
+        if(res.status === 200) {
+            return res
+        }else {
+            return {status: 404}
+        }
+
+    }catch(e) {
+        console.log(e)
+        return {status:404}
+    }
+}
+export async function getFavorite(dispatch, token) {
+    dispatch({type:"LOADING"})
+    let favorite = await axios.get('http://192.168.88.248:8000/follow',
+        {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        }
+    )
+    if(favorite.data){
+        const tmp_set = new Set()
+        for(let i in favorite.data) {
+            tmp_set.add(favorite.data[i].id)
+        }
+        console.log(tmp_set)
+        dispatch({type:"SET_FAVORITE", payload: favorite.data, favorite_id: tmp_set})
+        dispatch({type:"NOT_LOADING"})
+    }
+    return
+
+}
 
 export async function loginUser(dispatch, username, password) {
     try{
+        const loginURL = 'http://192.168.88.248:8000/auth/login'
         dispatch({type:'LOADING'})
         let res = await axios.post(
             loginURL,
@@ -17,24 +60,9 @@ export async function loginUser(dispatch, username, password) {
         )
         if(res.status === 200) {
             let token = res.data.access_token
-            let favorite = await axios.get('http://192.168.88.248:8000/follow',
-            {
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                    'Authorization': `Bearer ${token}`
-                }
-            }
-            )
             dispatch({type: 'LOGIN_SUCCESS', payload: res.data})
-            if(favorite.data){
-                const tmp_set = Set()
-                for(let i in favorite.data) {
-                    tmp_set.add(i.id)
-                }
-                dispatch({type:"SET_FAVORITE", payload: favorite.data, favorite_id: tmp_set})
-                
-            }
             localStorage.setItem('token', res.data.access_token)
+            return res
         }
         dispatch({type: 'LOGIN_ERROR', error: res.data})
         return res

@@ -17,18 +17,18 @@ function App() {
   // const [user,dispatch] = useReducer(AuthReducer, initialState)
   const history = useHistory()
   return (
-    <AuthProvider>
       <Router history = {history}>
-        <NavbarS/>
-        <Switch>
-          <Route path = '/login' component = {LoginPage}/>,
-          <Route path = '/sign' component = {SignPage}/>,
-          <Route path = '/favorite' component = {Favorite}/>,
-          <Route exact path='/' component = {BodyS}/>,
-          <Route path = '/id/:id' component = {FruitPage}/>,
-        </Switch>
+        <AuthProvider>
+          <NavbarS/>
+          <Switch>
+            <Route path = '/login' component = {LoginPage}/>,
+            <Route path = '/sign' component = {SignPage}/>,
+            <Route path = '/favorite' component = {Favorite}/>,
+            <Route exact path='/' component = {BodyS}/>,
+            <Route path = '/id/:id' component = {FruitPage}/>,
+          </Switch>
+        </AuthProvider>
       </Router>
-     </AuthProvider>
   );
 }
 

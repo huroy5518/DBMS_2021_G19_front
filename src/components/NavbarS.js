@@ -26,8 +26,8 @@ function NavbarS(props) {
             <Navbar.Toggle/>
             <Navbar.Collapse className = 'justify-content-end'>
                 {(isLogin) ? <h4 className = 'mt-2'>{userData}</h4>:""}
-                {(isLogin) ? (<Button variant = 'primary-text' onClick = {() => {nextPath('/favorite')}} className = 'mr-2'> 收藏 </Button>) : (<Button variant = 'primary-text' href = "Sign" className = 'mr-2'> 註冊 </Button>)}
-                {(isLogin) ? (<Button variant = 'primary-text' onClick = {() => {handleLogout()}} className = 'mr-2'> 登出 </Button>) : (<Button variant = 'primary-text' href = "Login" className = 'mr-2'>登入</Button>)}
+                {(isLogin) ? (<Button variant = 'primary-text' onClick = {() => {nextPath('/favorite')}} className = 'mr-2'> 收藏 </Button>) : (<Button variant = 'primary-text' href = "/Sign" className = 'mr-2'> 註冊 </Button>)}
+                {(isLogin) ? (<Button variant = 'primary-text' onClick = {() => {handleLogout()}} className = 'mr-2'> 登出 </Button>) : (<Button variant = 'primary-text' href = "/Login" className = 'mr-2'>登入</Button>)}
                 
             </Navbar.Collapse>       
         </Navbar>

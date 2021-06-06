@@ -24,9 +24,9 @@ const LoginPage = ()=> {
     try{
       let res = await loginUser(dispatch, username, password)
       if(res.status === 200) {
-        history.push('/')
         setLoading(false)
         setWrong(false)
+        history.push('/')
       }else {
         setLoading(false)
         setWrong(true)

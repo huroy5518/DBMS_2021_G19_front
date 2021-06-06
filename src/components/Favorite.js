@@ -1,15 +1,21 @@
-import {useState} from 'react'
+import {useState, useEffect} from 'react'
 import {Container, Row, Col,Badge, Card} from 'react-bootstrap'
 import ReactLoading from 'react-loading'
 import { useAuthDispatch, useAuthState } from './context/context'
 import {useHistory} from 'react-router-dom'
+import axios from 'axios'
+import {getFavorite} from './context/action'
 
 const Favorite = () => {
     const {isLogin} = useAuthState()
-    const {favorite, favorite_id} = useAuthState()
+    const {loading, favorite, favorite_id, token} = useAuthState()
     
     const history = useHistory()
     const dispatch = useAuthDispatch()
+
+    useEffect(() => {
+        getFavorite(dispatch, token)
+    },[])
 
     const handleCardClick = (e) => {
 
@@ -20,28 +26,32 @@ const Favorite = () => {
         history.push('/id/' +e.currentTarget.id)
     }
 
-    const handleFavoriteRemove = (e)=> {
+    const handleFavoriteRemove = async (e)=> {
         // TODO communicate
         const tmp = parseInt((e.target.id.split(':')[1]))
         const tmp_set = favorite_id
         const tmp_favorite = favorite.filter((item) => {
             return item.id !== favorite[tmp].id
         })
+        const deleteURL = 'http://192.168.88.248:8000/follow/' + favorite[tmp].id
+        await axios.delete(deleteURL,
+            {},
+            {headers: {'Authorization': `Bearer ${token}`}}
+        )
         tmp_set.delete(favorite[tmp].id)
-        dispatch({type:'SET_FAVORITE', payload: {favorite:tmp_favorite}, newSet:tmp_set})
+        dispatch({type:'SET_FAVORITE', payload: tmp_favorite, favorite_id:tmp_set})
     }
 
     let DataCard = 
+    (loading)? 
+    (<Container fluid className = 'd-flex justify-content-center'>
+        <ReactLoading type={"bars"} color={"grey"} />
+    </Container>)
+    :
      favorite.map((item,idx) => {
-                        const h = item.months.map(month =>
-                            <Badge pill variant='warning' className = 'ml-2 mb-2' key = {month}>{month}月</Badge> )
-                            h.push(
-                            <Badge pill variant = 'secondary' className = 'ml-2 mb-2 favorite' id = {'favorite:' + idx} key ={'favorite:' + item.id}  onClick = {handleFavoriteRemove}>
-                                已收藏  
-                            </Badge>)
 
                         return(
-                            <Card className = 'card-1 px-0 p-0 card-1 mb-2' key = {item.id} id = {idx} onClick = {handleCardClick}>
+                            <Card className = 'card-1 px-0 p-0 card-1 mb-2' key = {item.id} id = {item.id} onClick = {handleCardClick}>
                                 <Container className = 'mt-3 align-items-center'>
                                     <Row xs={2}>
                                         <Col>
@@ -52,14 +62,16 @@ const Favorite = () => {
                                             </Row>
                                         </Col>
                                         <Col>
-                                            <Row>
+                                            {/* <Row>
                                                 <Container className = 'd-flex align-items-center justify-content-end'>
                                                     <h5>今日價格：{item.today_price}</h5>
                                                 </Container>
-                                            </Row>
+                                            </Row> */}
                                             <Row>
                                                 <Container className = 'd-flex align-items-center justify-content-end'>
-                                                    {h}
+                                                    <Badge pill variant = 'secondary' className = 'ml-2 mb-2 favorite' id = {'favorite:' + idx} key ={'favorite:' + item.id}  onClick = {handleFavoriteRemove}>
+                                                        已收藏  
+                                                    </Badge>
                                                 </Container>
                                             </Row>
                                         </Col>

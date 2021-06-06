@@ -24,14 +24,12 @@ export const AuthReducer = (initialState, action) => {
         case "USER_LOGIN":
             return {
                 ...initialState,
-                loading: true
             }
         case "LOGIN_SUCCESS":
             return {
                 ...initialState,
                 userData: JSON.parse(atob(action.payload.access_token.split('.')[1])).username,
                 token: action.payload.access_token,
-                loading: false,
                 isLogin:true
             }
         case "LOGOUT":
@@ -57,8 +55,8 @@ export const AuthReducer = (initialState, action) => {
         case "SET_FAVORITE":
             return {
                 ...initialState,
-                favorite: action.payload.favorite,
-                favorite_id: action.newSet
+                favorite: action.payload,
+                favorite_id: action.favorite_id
             }
         default:
             throw new Error("can't handle submit")

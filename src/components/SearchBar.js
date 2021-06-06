@@ -6,6 +6,7 @@ import {useHistory} from 'react-router-dom'
 import axios from 'axios'
 import './BodyS.css'
 import { useAuthDispatch, useAuthState } from './context/context'
+import {getFavorite, getSearch} from './context/action'
 
 const SearchBar = ()=> {
     const Month = [
@@ -42,14 +43,22 @@ const SearchBar = ()=> {
     const [inputFruitName, setInputFruitName] = useState('')
     const [inputLocationName, setInputLocationName] = useState('')
     const [inputMarketName, setInputMarketName] = useState('')
-    const {favorite_id,favorite} = useAuthState()
+    const {favorite_id,favorite, token} = useAuthState()
     const [fruitData, setFruitData] = useState([])
     const [isLoading, setIsLoading] = useState(true)
     const dispatch = useAuthDispatch()
     useEffect(() => {
         axios.get('http://192.168.88.248:8000/fruit').then(
-            res => setFruitData(res.data)
-        ).then(setIsLoading(false))
+            res => {
+                setFruitData(res.data) 
+            }
+        ).then(
+            ()=>
+            {
+                setIsLoading(false)
+                getFavorite(dispatch, token)
+            }
+        )
         .catch(e => {
             console.log(e)
         })
@@ -63,7 +72,6 @@ const SearchBar = ()=> {
         setLowest(e.target.value)
     }
     const handleMonthChange = (e)=> {
-        console.log(lowest)
         if(e.length === 0) {
             setMonth([])
             return
@@ -93,25 +101,6 @@ const SearchBar = ()=> {
         }
         setSeason((e) ? e.map(x=>x.value):[])
     }
-    // const customStyles = {
-    //     option: (provided, state) =>( {
-    //         ...provided,
-    //     }),
-    //     multiValue : (styles, {data}) => ({
-    //         ...styles,
-    //         backrgoundColor: 'blue',
-    //         opacity: 0.1
-    //     }),
-    //     multiValueLabel: (styles, { data }) => ({
-    //         ...styles,
-    //         backgroundColor: 'blue',
-    //         opacity: 0.1
-    //     }),
-    //     multiValueRemove: (styles, { data }) => ({
-    //         ...styles,
-    //         backgroundColor: rgba(0, 0, 0, 0.5)
-    //     }),
-    // }
     const handleMarketNameChange = (e) => {
         setInputMarketName(e.target.value)
     }
@@ -121,32 +110,31 @@ const SearchBar = ()=> {
     const handleFruitNameChange = (e) => {
         setInputFruitName(e.target.value)
     }
-    const getSearch = async (e) => {
-        const searchURL = 'http://192.168.88.248:8000/fruit/search'
-        try{
-            let res = axios.post(
-                searchURL,
-                {
-                    id:"",
-                    name: inputFruitName,
-                    months: selectMonth
-                }
-            )
-            if(res.status === 200) {
-                return res
-            }else {
-                console.log(res)
-                return {status: 404}
-            }
+    // const getSearch = async (e) => {
+    //     const searchURL = 'http://192.168.88.248:8000/fruit/search'
+    //     try{
+    //         let res = await axios.post(
+    //             searchURL,
+    //             {
+    //                 id:"",
+    //                 name: inputFruitName,
+    //                 months: selectMonth
+    //             }
+    //         )
+    //         if(res.status === 200) {
+    //             return res
+    //         }else {
+    //             return {status: 404}
+    //         }
 
-        }catch(e) {
-            console.log(e)
-        }
-    }
+    //     }catch(e) {
+    //         console.log(e)
+    //         return {status:404}
+    //     }
+    // }
     const handleSearch = async() => {
-        console.log(inputFruitName)
         setIsLoading(true)
-        let op = await getSearch()
+        let op = await getSearch(inputFruitName, selectMonth)
         if(op.status === 200) {
             setFruitData(op.data)
             setIsLoading(false)
@@ -159,28 +147,39 @@ const SearchBar = ()=> {
         if(e.target.id.split(':')[0] === 'favorite') {
             return
         }
-        console.log(e.currentTarget.id)
         history.push('/id/' +e.currentTarget.id)
     }
 
-    const handleFavoriteAdd = (e)=> {
+    const handleFavoriteAdd = async (e)=> {
         // TODO communicate
         const tmp_favorite = favorite
         const tmp = parseInt((e.target.id.split(':')[1]))
+        const postURL = 'http://192.168.88.248:8000/follow/' + fruitData[tmp].id
+        await axios.post(postURL,
+            {},
+            {headers: {'Authorization': `Bearer ${token}`}}
+                    
+        )
         tmp_favorite.push(fruitData[tmp])
         const tmp_set = favorite_id
         tmp_set.add(fruitData[tmp].id)
-        dispatch({type:'SET_FAVORITE', payload: {favorite:tmp_favorite}, newSet:tmp_set})
+        dispatch({type:'SET_FAVORITE', payload:tmp_favorite, favorite_id:tmp_set})
     }
-    const handleFavoriteRemove = (e)=> {
+
+    const handleFavoriteRemove = async (e)=> {
         // TODO communicate
         const tmp = parseInt((e.target.id.split(':')[1]))
         const tmp_set = favorite_id
         const tmp_favorite = favorite.filter((item) => {
             return item.id !== fruitData[tmp].id
         })
+        const deleteURL = 'http://192.168.88.248:8000/follow/' + fruitData[tmp].id
+        await axios.delete(deleteURL,
+            {headers: {'Authorization': `Bearer ${token}`}}
+                    
+        )
         tmp_set.delete(fruitData[tmp].id)
-        dispatch({type:'SET_FAVORITE', payload: {favorite:tmp_favorite}, newSet:tmp_set})
+        dispatch({type:'SET_FAVORITE', payload: tmp_favorite, favorite_id:tmp_set})
     }
 
     // const DataCard = data.map(item => (
@@ -196,12 +195,11 @@ const SearchBar = ()=> {
     //     </Card>
     // ))
 
-    
-    console.log(isLoading)
-    let DataCard = (isLoading)? 
-    <Container fluid className = 'd-flex justify-content-center'>
+    let DataCard = 
+    (isLoading)? 
+    (<Container fluid className = 'd-flex justify-content-center'>
         <ReactLoading type={"bars"} color={"grey"} />
-    </Container>
+    </Container>)
     : fruitData.map((item,idx) => {
                         const h = item.months.map(month =>
                             <Badge pill variant='warning' className = 'ml-2 mb-2' key = {month}>{month}月</Badge> )
