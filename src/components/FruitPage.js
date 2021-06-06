@@ -1,5 +1,5 @@
 import {useEffect, useState} from 'react'
-import {Container, Row, Badge} from 'react-bootstrap'
+import {Container, Row, Badge, Col} from 'react-bootstrap'
 import {useAuthState, useAuthDispatch} from './context/context'
 import axios from 'axios'
 import ReactLoading from 'react-loading'
@@ -13,11 +13,11 @@ const FruitPage = (props) => {
     const [notFound, setNotFound] = useState(false)
     const {isLogin, favorite_id, token, favorite} = useAuthState()
     const [twoYearPrice, setTwoYearPrice] = useState([])
-    const [twoYearDate, setTwoYearData] = useState([])
+    const [twoYearDate, setTwoYearDate] = useState([])
 
     const dispatch = useAuthDispatch()
 
-    const URL = 'http://192.168.88.248:8000/fruit/' + fruitId
+    const URL = 'http://140.113.138.236:8000/fruit/' + fruitId
     async function getdata() {
         try{
 
@@ -36,9 +36,7 @@ const FruitPage = (props) => {
         getFavorite(dispatch, token)
     }, [])
     useEffect(() => {
-        console.log(favorite_id)
         let op = getdata()
-        console.log(isLogin)
         // console.log(res)
         op.then(
             (res)=>{
@@ -57,9 +55,9 @@ const FruitPage = (props) => {
                 tmp = tmp.map((item) => {
                     return item.year.toString() + '-' + item.month.toString()
                 })
-                setTwoYearData(tmp)
-                setLoading(false)
+                setTwoYearDate(tmp)
                 setNotFound(false)
+                setLoading(false)
             }
         ).catch(e => console.log(e))
     }, [])
@@ -69,7 +67,6 @@ const FruitPage = (props) => {
         )
     }
     if(Loading || fruitData === {}) {
-        console.log(fruitData)
         return (
             <Container fluid className = 'd-flex justify-content-center'>
                 <ReactLoading type={"bars"} color={"grey"} />
@@ -79,31 +76,29 @@ const FruitPage = (props) => {
     const handleFavoriteAdd = async (e)=> {
         // TODO communicate
         const tmp_favorite = favorite
-        const tmp = parseInt((e.target.id.split(':')[1]))
-        const postURL = 'http://192.168.88.248:8000/follow/' + fruitData[tmp].id
+        const postURL = 'http://140.113.138.236:8000/follow/' + fruitData.id
         await axios.post(postURL,
             {},
             {headers: {'Authorization': `Bearer ${token}`}}
                     
         )
-        tmp_favorite.push(fruitData[tmp])
+        tmp_favorite.push(fruitData)
         const tmp_set = favorite_id
-        tmp_set.add(fruitData[tmp].id)
+        tmp_set.add(fruitData.id)
         dispatch({type:'SET_FAVORITE', payload:tmp_favorite, favorite_id:tmp_set})
     }
     const handleFavoriteRemove = async (e)=> {
         // TODO communicate
-        const tmp = parseInt((e.target.id.split(':')[1]))
         const tmp_set = favorite_id
         const tmp_favorite = favorite.filter((item) => {
-            return item.id !== fruitData[tmp].id
+            return item.id !== fruitData.id
         })
-        const deleteURL = 'http://192.168.88.248:8000/follow/' + fruitData[tmp].id
+        const deleteURL = 'http://140.113.138.236:8000/follow/' + fruitData.id
         await axios.delete(deleteURL,
             {headers: {'Authorization': `Bearer ${token}`}}
                     
         )
-        tmp_set.delete(fruitData[tmp].id)
+        tmp_set.delete(fruitData.id)
         dispatch({type:'SET_FAVORITE', payload: tmp_favorite, favorite_id:tmp_set})
     }
 
@@ -149,32 +144,53 @@ const FruitPage = (props) => {
                     <ReactLoading type={"bars"} color={"grey"} />
                 </Container>
             :<Container>
-                <h1 className = 'mt-2'>{fruitData.name}</h1>
-                <Container>
+                <h1 className = 'mt-2 ml-3'>{fruitData.name}</h1>
+                <Container fluid>
                     <Row>
-                        <h4>盛產季節</h4>
-                        {fruitData.months.map(month=>{
-                                return (
-                                <Badge pill variant='warning' className = 'ml-2 mb-2 pt-2' key = {month}>{month}月</Badge>
-                            )
-                        })
-                        }
-                        {
-                         (isLogin)?
-                          ((favorite_id.has(fruitId))? 
-                            <Badge pill variant = 'secondary' className = 'ml-2 mb-2 pt-2 favorite' id = {'favorite'} key ={'not_favorite'}  onClick = {handleFavoriteRemove}>
-                                已收藏  
-                            </Badge>
-                            :
-                            <Badge pill className = 'ml-2 mb-2 pt-2 favorite add' id = {'favorite'} key ={'favorite'} onClick = {handleFavoriteAdd}>
-                                收藏  
-                            </Badge>):""
+                        <Col>
 
-                        }
+                            <h4>盛產月份</h4>
+                            {fruitData.months.map(month=>{
+                                    return (
+                                    <Badge pill variant='warning' className = 'mb-2 mr-2 pt-2' key = {month}>{month}月</Badge>
+                                )
+                            })
+                            }
+                            {
+                            (isLogin)?
+                            ((favorite_id.has(fruitId))? 
+                                <Badge pill variant = 'secondary' className = 'mb-2 pt-2 favorite' id = {'favorite'} key ={'not_favorite'}  onClick = {handleFavoriteRemove}>
+                                    已收藏  
+                                </Badge>
+                                :
+                                <Badge pill className = 'mb-2 mr-2 pt-2 favorite add' id = {'favorite'} key ={'favorite'} onClick = {handleFavoriteAdd}>
+                                    收藏  
+                                </Badge>):""
 
+                            }
+
+                        </Col>
+                            {( !Loading && fruitData.locations.length >= 1) ? 
+                                <Col>
+                                <Row>
+                                    <h4>產地</h4>
+                                </Row>
+                                <Row>
+                                    {fruitData.locations.map((item) => {
+                                        return (
+                                            <Badge pill className = 'ml-2 mb-2 pt-2 favorite add' key ={item.id} onClick = {()=>{}}>
+                                                {item.name}    
+                                            </Badge>
+                                        )
+                                    })}
+                                </Row>
+                            </Col>
+                            :""}
                     </Row>
                 </Container>
-                    <LineChart/>
+                <Container className = 'mt-4'>
+                    <LineChart className = 'ml-2'/>
+                </Container>
             </Container>
             }
         </>

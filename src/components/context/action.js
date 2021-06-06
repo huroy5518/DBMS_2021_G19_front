@@ -1,14 +1,18 @@
 import axios from "axios"
+import { locationsAreEqual } from "history"
 
-export const getSearch = async (inputFruitName, selectMonth) => {
-    const searchURL = 'http://192.168.88.248:8000/fruit/search'
+export const getSearch = async (inputFruitName, selectMonth, lowest, highest, season, locations) => {
+    const searchURL = 'http://140.113.138.236:8000/fruit/search'
     try{
         let res = await axios.post(
             searchURL,
             {
                 id:"",
                 name: inputFruitName,
-                months: selectMonth
+                months:(selectMonth.length >= 0)? selectMonth:null,
+                location: locations,
+                lowest: lowest,
+                highest: highest,
             }
         )
         if(res.status === 200) {
@@ -24,7 +28,7 @@ export const getSearch = async (inputFruitName, selectMonth) => {
 }
 export async function getFavorite(dispatch, token) {
     dispatch({type:"LOADING"})
-    let favorite = await axios.get('http://192.168.88.248:8000/follow',
+    let favorite = await axios.get('http://140.113.138.236:8000/follow',
         {
             headers: {
                 'Authorization': `Bearer ${token}`
@@ -36,7 +40,6 @@ export async function getFavorite(dispatch, token) {
         for(let i in favorite.data) {
             tmp_set.add(favorite.data[i].id)
         }
-        console.log(tmp_set)
         dispatch({type:"SET_FAVORITE", payload: favorite.data, favorite_id: tmp_set})
         dispatch({type:"NOT_LOADING"})
     }
@@ -46,7 +49,7 @@ export async function getFavorite(dispatch, token) {
 
 export async function loginUser(dispatch, username, password) {
     try{
-        const loginURL = 'http://192.168.88.248:8000/auth/login'
+        const loginURL = 'http://140.113.138.236:8000/auth/login'
         dispatch({type:'LOADING'})
         let res = await axios.post(
             loginURL,
@@ -75,7 +78,7 @@ export async function logout(dispatch) {
     dispatch({type: 'LOGOUT'});
     localStorage.removeItem('token');
 }
-const signURL = 'http://192.168.88.248:8000/auth/register'
+const signURL = 'http://140.113.138.236:8000/auth/register'
 export async function sign(dataSend) {
     try{
         let res = await axios.post(

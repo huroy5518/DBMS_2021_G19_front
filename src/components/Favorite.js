@@ -22,7 +22,6 @@ const Favorite = () => {
         if(e.target.id.split(':')[0] === 'favorite') {
             return
         }
-        console.log(e.currentTarget.id)
         history.push('/id/' +e.currentTarget.id)
     }
 
@@ -33,9 +32,8 @@ const Favorite = () => {
         const tmp_favorite = favorite.filter((item) => {
             return item.id !== favorite[tmp].id
         })
-        const deleteURL = 'http://192.168.88.248:8000/follow/' + favorite[tmp].id
+        const deleteURL = 'http://140.113.138.236:8000/follow/' + favorite[tmp].id
         await axios.delete(deleteURL,
-            {},
             {headers: {'Authorization': `Bearer ${token}`}}
         )
         tmp_set.delete(favorite[tmp].id)

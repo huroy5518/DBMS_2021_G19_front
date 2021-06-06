@@ -48,12 +48,12 @@ const SearchBar = ()=> {
     const [isLoading, setIsLoading] = useState(true)
     const dispatch = useAuthDispatch()
     useEffect(() => {
-        axios.get('http://192.168.88.248:8000/fruit').then(
+        axios.get('http://140.113.138.236:8000/fruit').then(
             res => {
                 setFruitData(res.data) 
             }
         ).then(
-            ()=>
+            (res)=>
             {
                 setIsLoading(false)
                 getFavorite(dispatch, token)
@@ -134,14 +134,32 @@ const SearchBar = ()=> {
     // }
     const handleSearch = async() => {
         setIsLoading(true)
-        let op = await getSearch(inputFruitName, selectMonth)
+        let op = await getSearch(inputFruitName, selectMonth, lowest, highest, inputLocationName)
         if(op.status === 200) {
-            setFruitData(op.data)
+            if(selectSeason.length > 0) {
+                const tmp = []
+                for(let i in selectSeason) {
+                    tmp.push(3 * (selectSeason[i] - 1) + 1)
+                    tmp.push(3 * (selectSeason[i] - 1) + 2)
+                    tmp.push(3 * (selectSeason[i] - 1) + 3)
+                }
+                
+                setFruitData(op.data.filter((item) => {
+                    let a = new Set(item.months)
+                    let b = new Set(tmp)
+                    let intersection = new Set(
+                        [...a].filter(x => b.has(x)))
+                    return intersection.size >= 2
+                }))
+            }else {
+                setFruitData(op.data)
+            }
             setIsLoading(false)
         }else {
             setIsLoading(false)
         }
     }
+
     const handleCardClick = (e) => {
 
         if(e.target.id.split(':')[0] === 'favorite') {
@@ -154,7 +172,7 @@ const SearchBar = ()=> {
         // TODO communicate
         const tmp_favorite = favorite
         const tmp = parseInt((e.target.id.split(':')[1]))
-        const postURL = 'http://192.168.88.248:8000/follow/' + fruitData[tmp].id
+        const postURL = 'http://140.113.138.236:8000/follow/' + fruitData[tmp].id
         await axios.post(postURL,
             {},
             {headers: {'Authorization': `Bearer ${token}`}}
@@ -173,7 +191,7 @@ const SearchBar = ()=> {
         const tmp_favorite = favorite.filter((item) => {
             return item.id !== fruitData[tmp].id
         })
-        const deleteURL = 'http://192.168.88.248:8000/follow/' + fruitData[tmp].id
+        const deleteURL = 'http://140.113.138.236:8000/follow/' + fruitData[tmp].id
         await axios.delete(deleteURL,
             {headers: {'Authorization': `Bearer ${token}`}}
                     
@@ -216,6 +234,7 @@ const SearchBar = ()=> {
 
                         }
 
+                        // const c = item.locations.map(lo => <Badge pill variant='warning' className = 'ml-2 mb-2' key = {lo.name}>{lo.name}月</Badge>)
                         return(
                             <Card className = 'card-1 px-0 p-0 card-1 mb-2' key = {item.id} id = {item.id} onClick = {handleCardClick}>
                                 <Container className = 'mt-3 align-items-center'>
@@ -230,12 +249,13 @@ const SearchBar = ()=> {
                                         <Col>
                                             <Row>
                                                 <Container className = 'd-flex align-items-center justify-content-end'>
-                                                    <h5>今日價格：{item.today_price}</h5>
+                                                    <h5>最近價格：{Math.round(item.prices)}</h5>
                                                 </Container>
                                             </Row>
                                             <Row>
                                                 <Container className = 'd-flex align-items-center justify-content-end'>
                                                     {h}
+                                                    {/* {c} */}
                                                 </Container>
                                             </Row>
                                         </Col>
