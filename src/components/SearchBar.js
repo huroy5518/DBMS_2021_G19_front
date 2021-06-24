@@ -8,6 +8,7 @@ import './BodyS.css'
 import { useAuthDispatch, useAuthState } from './context/context'
 import {getFavorite, getSearch} from './context/action'
 
+import {path} from './context/path'
 const SearchBar = ()=> {
     const Month = [
         {value:1, label: "1月"},
@@ -191,7 +192,7 @@ const SearchBar = ()=> {
         const tmp_favorite = favorite.filter((item) => {
             return item.id !== fruitData[tmp].id
         })
-        const deleteURL = 'http://140.113.138.236:8000/follow/' + fruitData[tmp].id
+        const deleteURL = path + '/follow/' + fruitData[tmp].id
         await axios.delete(deleteURL,
             {headers: {'Authorization': `Bearer ${token}`}}
                     

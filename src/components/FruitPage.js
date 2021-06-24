@@ -5,6 +5,7 @@ import axios from 'axios'
 import ReactLoading from 'react-loading'
 import {Line} from 'react-chartjs-2'
 import {getFavorite} from './context/action'
+import {path} from './context/path'
 
 const FruitPage = (props) => {
     const fruitId = props.match.params.id
@@ -17,7 +18,7 @@ const FruitPage = (props) => {
 
     const dispatch = useAuthDispatch()
 
-    const URL = 'http://140.113.138.236:8000/fruit/' + fruitId
+    const URL = path + '/fruit/' + fruitId
     async function getdata() {
         try{
 
@@ -76,7 +77,7 @@ const FruitPage = (props) => {
     const handleFavoriteAdd = async (e)=> {
         // TODO communicate
         const tmp_favorite = favorite
-        const postURL = 'http://140.113.138.236:8000/follow/' + fruitData.id
+        const postURL = path + '/follow/' + fruitData.id
         await axios.post(postURL,
             {},
             {headers: {'Authorization': `Bearer ${token}`}}
@@ -93,7 +94,7 @@ const FruitPage = (props) => {
         const tmp_favorite = favorite.filter((item) => {
             return item.id !== fruitData.id
         })
-        const deleteURL = 'http://140.113.138.236:8000/follow/' + fruitData.id
+        const deleteURL = path + '/follow/' + fruitData.id
         await axios.delete(deleteURL,
             {headers: {'Authorization': `Bearer ${token}`}}
                     

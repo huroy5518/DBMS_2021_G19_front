@@ -5,6 +5,7 @@ import { useAuthDispatch, useAuthState } from './context/context'
 import {useHistory} from 'react-router-dom'
 import axios from 'axios'
 import {getFavorite} from './context/action'
+import {path} from './context/path'
 
 const Favorite = () => {
     const {isLogin} = useAuthState()
@@ -32,7 +33,7 @@ const Favorite = () => {
         const tmp_favorite = favorite.filter((item) => {
             return item.id !== favorite[tmp].id
         })
-        const deleteURL = 'http://140.113.138.236:8000/follow/' + favorite[tmp].id
+        const deleteURL = path + '/follow/' + favorite[tmp].id
         await axios.delete(deleteURL,
             {headers: {'Authorization': `Bearer ${token}`}}
         )

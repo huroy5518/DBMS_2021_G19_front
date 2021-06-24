@@ -1,8 +1,9 @@
 import axios from "axios"
 import { locationsAreEqual } from "history"
+import {path} from './path'
 
 export const getSearch = async (inputFruitName, selectMonth, lowest, highest, season, locations) => {
-    const searchURL = 'http://140.113.138.236:8000/fruit/search'
+    const searchURL = path + '/fruit/search'
     try{
         let res = await axios.post(
             searchURL,
@@ -28,7 +29,7 @@ export const getSearch = async (inputFruitName, selectMonth, lowest, highest, se
 }
 export async function getFavorite(dispatch, token) {
     dispatch({type:"LOADING"})
-    let favorite = await axios.get('http://140.113.138.236:8000/follow',
+    let favorite = await axios.get(path + '/follow',
         {
             headers: {
                 'Authorization': `Bearer ${token}`
@@ -49,7 +50,7 @@ export async function getFavorite(dispatch, token) {
 
 export async function loginUser(dispatch, username, password) {
     try{
-        const loginURL = 'http://140.113.138.236:8000/auth/login'
+        const loginURL = path + '/auth/login'
         dispatch({type:'LOADING'})
         let res = await axios.post(
             loginURL,
@@ -78,7 +79,7 @@ export async function logout(dispatch) {
     dispatch({type: 'LOGOUT'});
     localStorage.removeItem('token');
 }
-const signURL = 'http://140.113.138.236:8000/auth/register'
+const signURL = path + '/auth/register'
 export async function sign(dataSend) {
     try{
         let res = await axios.post(
