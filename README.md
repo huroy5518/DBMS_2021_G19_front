@@ -1,6 +1,6 @@
 # DBMS_G19_Front_End
 ---
-# In order to run this project, you need to setup nodejs version of 14
+## In order to run this project, you need to set the nodejs version to 14
 ### You may setup nodejs version with nvm
 ```
 nvm install 14
